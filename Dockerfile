@@ -22,7 +22,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends $buildDeps \
  && update-ca-certificates \
  && echo 'gem: --no-document' >> /etc/gemrc \
- && gem install --no-document fluent-plugin-kubernetes_metadata_filter -v 0.26.2 \
+ && gem install --no-document fluent-plugin-kubernetes_metadata_filter -v 2.1.2 \
  && gem install --no-document fluent-plugin-elasticsearch -v 1.9.5 \
  && gem install --no-document fluent-plugin-prometheus -v 0.2.1 \
  && gem install --no-document fluent-plugin-concat -v 2.1.0 \
