@@ -39,7 +39,7 @@ RUN apt-get update \
  && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
 # Remove default conf
-RUN rm -f /fluentd/etc/*.conf
+#RUN rm -f /fluentd/etc/*.conf
 
-COPY ./${FLUENTD_CONF_TEMPLATE} /fluentd/etc/template/
-COPY ./kill-processes.sh /fluentd/etc/scripts/
+#COPY ./${FLUENTD_CONF_TEMPLATE} /fluentd/etc/template/
+#COPY ./kill-processes.sh /fluentd/etc/scripts/
