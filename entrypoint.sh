@@ -1,19 +1,13 @@
 #!/usr/bin/dumb-init /bin/sh
 
-uid=${FLUENT_UID:-1000}
+set -e
 
-# check if a old fluent user exists and delete it
-cat /etc/passwd | grep fluent
-if [ $? -eq 0 ]; then
-    deluser fluent
+if [ -z ${FLUENT_ELASTICSEARCH_USER} ] ; then
+   sed -i  '/FLUENT_ELASTICSEARCH_USER/d' /fluentd/etc/${FLUENTD_CONF}
 fi
 
-# (re)add the fluent user with $FLUENT_UID
-useradd -u ${uid} -o -c "" -m fluent
-export HOME=/home/fluent
+if [ -z ${FLUENT_ELASTICSEARCH_PASSWORD} ] ; then
+   sed -i  '/FLUENT_ELASTICSEARCH_PASSWORD/d' /fluentd/etc/${FLUENTD_CONF}
+fi
 
-# chown home and data folder
-chown -R fluent /home/fluent
-chown -R fluent /fluentd
-
-exec gosu fluent "$@"
+exec fluentd -c /fluentd/etc/${FLUENTD_CONF} -p /fluentd/plugins --gemfile /fluentd/Gemfile ${FLUENTD_OPT}

@@ -3,43 +3,51 @@ LABEL maintainer="Stakater Team"
 LABEL Description="Fluentd docker image atop Debian9 to run on Kubernetes"
 
 ENV FLUENTD_CONF_TEMPLATE=fluent.conf.tpl
+ENV PATH /fluentd/vendor/bundle/ruby/2.3.0/bin:$PATH
+ENV GEM_PATH /fluentd/vendor/bundle/ruby/2.3.0
+ENV GEM_HOME /fluentd/vendor/bundle/ruby/2.3.0
+# skip runtime bundler installation
+ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Do not split this into multiple RUN!
-# Docker creates a layer for every RUN-Statement
-# therefore an 'apt-get purge' has no effect
-RUN apt-get update \
- && apt-get upgrade -y \
- && apt-get install -y --no-install-recommends \
-            ca-certificates \
-            ruby \
- && buildDeps=" \
-      make gcc g++ libc-dev \
-      ruby-dev \
-      wget bzip2 gnupg dirmngr \
-    " \
- && apt-get install -y --no-install-recommends $buildDeps \
- && update-ca-certificates \
- && echo 'gem: --no-document' >> /etc/gemrc \
- && gem install --no-document fluent-plugin-kubernetes_metadata_filter -v 2.1.2 \
- && gem install --no-document fluent-plugin-elasticsearch -v 1.9.5 \
- && gem install --no-document fluent-plugin-prometheus -v 0.2.1 \
- && gem install --no-document fluent-plugin-concat -v 2.1.0 \
- && gem install --no-document fluent-plugin-rewrite-tag-filter -v 2.1.0 \
- && cd /tmp \
- && wget https://github.com/stakater/kube-gen/releases/download/0.3.4/kube-gen \
- && mkdir -p /kubegen/ \
- && mv /tmp/kube-gen /kubegen/kube-gen \
- && chmod +x /kubegen/kube-gen \
- && apt-get purge -y --auto-remove \
+USER root
+
+WORKDIR /home/fluent
+
+COPY Gemfile* /fluentd/
+  RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
+     && apt-get update \
+     && apt-get upgrade -y \
+     && apt-get install \
+     -y --no-install-recommends \
+     $buildDeps libjemalloc1 \
+     ruby-bundler \
+    && bundle config silence_root_warning true \
+    && bundle install --gemfile=/fluentd/Gemfile --path=/fluentd/vendor/bundle \
+    && SUDO_FORCE_REMOVE=yes \
+    apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \
                   $buildDeps \
  && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+    && gem sources --clear-all \
+    && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
-# Remove default conf
-#RUN rm -f /fluentd/etc/*.conf
+# Copy configuration files
+COPY ./conf/fluent.conf /fluentd/etc/
+COPY ./conf/systemd.conf /fluentd/etc/
+COPY ./conf/kubernetes.conf /fluentd/etc/
 
-#COPY ./${FLUENTD_CONF_TEMPLATE} /fluentd/etc/template/
-#COPY ./kill-processes.sh /fluentd/etc/scripts/
+# Copy plugins
+COPY plugins /fluentd/plugins/
+COPY entrypoint.sh /fluentd/entrypoint.sh
+
+# Environment variables
+ENV FLUENTD_OPT=""
+ENV FLUENTD_CONF="fluent.conf"
+
+# See https://packages.debian.org/stretch/amd64/libjemalloc1/filelist
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.1"
+
+# Overwrite ENTRYPOINT to run fluentd as root for /var/log / /var/lib
+ENTRYPOINT ["/fluentd/entrypoint.sh"]
