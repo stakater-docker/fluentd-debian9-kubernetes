@@ -1,0 +1,1 @@
+# This template will be an input to kube-gen
