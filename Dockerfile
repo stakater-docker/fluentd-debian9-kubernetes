@@ -2,7 +2,8 @@ FROM stakater/fluentd-debian9:1.2.2-0.0.1
 LABEL maintainer="Stakater Team"
 LABEL Description="Fluentd docker image atop Debian9 to run on Kubernetes"
 
-ENV FLUENTD_CONF_TEMPLATE=fluent.conf.tpl
+ENV KUBEGEN_CONF_TEMPLATE=kube-gen.conf.tpl
+ENV KUBEGEN_CONF=kube-gen.conf
 ENV PATH /fluentd/vendor/bundle/ruby/2.3.0/bin:$PATH
 ENV GEM_PATH /fluentd/vendor/bundle/ruby/2.3.0
 ENV GEM_HOME /fluentd/vendor/bundle/ruby/2.3.0
@@ -42,7 +43,7 @@ COPY Gemfile* /fluentd/
 COPY ./conf/fluent.conf /fluentd/etc/
 COPY ./conf/systemd.conf /fluentd/etc/
 COPY ./conf/kubernetes.conf /fluentd/etc/
-COPY ./fluent.conf.tpl /fluentd/etc/template/
+COPY ./${KUBEGEN_CONF_TEMPLATE} /fluentd/etc/template/
 
 # Copy scripts
 COPY ./fluentd-runner.sh /fluentd/etc/scripts/

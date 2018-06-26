@@ -10,4 +10,4 @@ if [ -z ${FLUENT_ELASTICSEARCH_PASSWORD} ] ; then
    sed -i  '/FLUENT_ELASTICSEARCH_PASSWORD/d' /fluentd/etc/${FLUENTD_CONF}
 fi
 
-exec kube-gen -watch -type pods -wait 2s:3s -post-cmd '/fluentd/etc/scripts/fluentd-runner.sh fluentd' /fluentd/etc/template/${FLUENTD_CONF_TEMPLATE} /fluentd/etc/${FLUENTD_CONF}
+exec kube-gen -watch -type pods -wait 2s:3s -post-cmd '/fluentd/etc/scripts/fluentd-runner.sh fluentd' /fluentd/etc/template/${KUBEGEN_CONF_TEMPLATE} /fluentd/etc/${KUBEGEN_CONF}
