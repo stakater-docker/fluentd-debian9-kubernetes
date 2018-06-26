@@ -14,6 +14,11 @@ then
     exit 1;
 fi
 
-pids=$(ps | grep "$process_name" | grep -v "grep" | grep -v "kube-gen" | grep -v "kill-processes" | awk '{print $1}');
-echo "Killing $process_name processess with Process IDs: ${pids}"
-kill -KILL ${pids}
+pids=$(ps -aux | grep "$process_name" | grep -v "grep" | grep -v "entrypoint.sh" | grep -v "fluentd-runner" | awk '{print $2}');
+if [ ! -z "$pids" ];
+then
+    echo "Killing $process_name processess with Process IDs: ${pids}"
+    kill -KILL ${pids}
+fi
+
+fluentd -c /fluentd/etc/${FLUENTD_CONF} -p /fluentd/plugins --gemfile /fluentd/Gemfile ${FLUENTD_OPT} &

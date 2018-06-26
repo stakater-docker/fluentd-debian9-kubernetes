@@ -22,7 +22,12 @@ COPY Gemfile* /fluentd/
      && apt-get install \
      -y --no-install-recommends \
      $buildDeps libjemalloc1 \
-     ruby-bundler \
+     ruby-bundler wget procps \
+     && cd /tmp \
+     && wget https://github.com/stakater/kube-gen/releases/download/0.3.5/kube-gen \
+     && mkdir -p /kubegen/ \
+     && mv /tmp/kube-gen /usr/local/bin/kube-gen \
+     && chmod +x /usr/local/bin/kube-gen \
     && bundle config silence_root_warning true \
     && bundle install --gemfile=/fluentd/Gemfile --path=/fluentd/vendor/bundle \
     && SUDO_FORCE_REMOVE=yes \
@@ -37,10 +42,14 @@ COPY Gemfile* /fluentd/
 COPY ./conf/fluent.conf /fluentd/etc/
 COPY ./conf/systemd.conf /fluentd/etc/
 COPY ./conf/kubernetes.conf /fluentd/etc/
+COPY ./fluent.conf.tpl /fluentd/etc/template/
+
+# Copy scripts
+COPY ./fluentd-runner.sh /fluentd/etc/scripts/
+COPY entrypoint.sh /fluentd/entrypoint.sh
 
 # Copy plugins
 COPY plugins /fluentd/plugins/
-COPY entrypoint.sh /fluentd/entrypoint.sh
 
 # Environment variables
 ENV FLUENTD_OPT=""
