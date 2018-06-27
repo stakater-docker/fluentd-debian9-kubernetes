@@ -25,7 +25,7 @@ COPY Gemfile* /fluentd/
      $buildDeps libjemalloc1 \
      ruby-bundler wget procps \
      && cd /tmp \
-     && wget https://github.com/stakater/kube-gen/releases/download/0.3.5/kube-gen \
+     && wget https://github.com/stakater/kube-gen/releases/download/0.3.6/kube-gen \
      && mkdir -p /kubegen/ \
      && mv /tmp/kube-gen /usr/local/bin/kube-gen \
      && chmod +x /usr/local/bin/kube-gen \
