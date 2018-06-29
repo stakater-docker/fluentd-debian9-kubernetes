@@ -40,7 +40,7 @@ COPY Gemfile* /fluentd/
     && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
 # Copy configuration files
-COPY ./conf/*.conf /fluentd/etc/
+COPY ./conf/ /fluentd/etc/
 COPY ./${KUBEGEN_CONF_TEMPLATE} /fluentd/etc/template/
 
 # Copy scripts
