@@ -3,11 +3,13 @@
 set -e
 
 if [ -z ${FLUENT_ELASTICSEARCH_USER} ] ; then
-   sed -i  '/FLUENT_ELASTICSEARCH_USER/d' /fluentd/etc/${FLUENTD_CONF}
+   sed -i  '/FLUENT_ELASTICSEARCH_USER/d' ${FLUENTD_CONF_PATH}/${FLUENTD_CONF}
 fi
 
 if [ -z ${FLUENT_ELASTICSEARCH_PASSWORD} ] ; then
-   sed -i  '/FLUENT_ELASTICSEARCH_PASSWORD/d' /fluentd/etc/${FLUENTD_CONF}
+   sed -i  '/FLUENT_ELASTICSEARCH_PASSWORD/d' ${FLUENTD_CONF_PATH}/${FLUENTD_CONF}
 fi
 
-exec kube-gen -watch -type pods -wait 2s:3s -post-cmd '/fluentd/etc/scripts/fluentd-runner.sh fluentd' /fluentd/etc/template/${KUBEGEN_CONF_TEMPLATE} /fluentd/etc/${KUBEGEN_CONF}
+echo "Hello"
+
+fluentd -c ${FLUENTD_CONF_PATH}/${FLUENTD_CONF} -p /fluentd/plugins --gemfile /fluentd/Gemfile ${FLUENTD_OPT}
