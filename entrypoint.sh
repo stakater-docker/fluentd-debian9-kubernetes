@@ -10,6 +10,4 @@ if [ -z ${FLUENT_ELASTICSEARCH_PASSWORD} ] ; then
    sed -i  '/FLUENT_ELASTICSEARCH_PASSWORD/d' ${FLUENTD_CONF_PATH}/${FLUENTD_CONF}
 fi
 
-echo "Hello"
-
 fluentd -c ${FLUENTD_CONF_PATH}/${FLUENTD_CONF} -p /fluentd/plugins --gemfile /fluentd/Gemfile ${FLUENTD_OPT}
